@@ -2,7 +2,8 @@
 
 An [OpenCode](https://opencode.ai) **Desktop** plugin that puts your project's issue tracker one click away:
 
-- an **Issues** pill in the window titlebar — click it and the GitHub/GitLab issue list opens in your browser
+- an **Issues** button in the window titlebar (in the side-panel layout, at the bottom left in the tabs footer) — click
+  it and the GitHub/GitLab issue list opens in your browser
 - a **`/issues`** command in the composer — `/issues 42` opens issue #42 directly; `/issues <url>` opens that URL
 - **“Open issue tracker”** in the command palette
 
@@ -47,7 +48,9 @@ Updates: `opencode plugin update`.
 
 ## What you get
 
-- **Titlebar button** — appears only while the open session's folder is a git clone with an `origin` remote. A folder
+- **Issues button** — the app places it in the titlebar, or in the tabs footer at the bottom left when it shows the
+  side-panel layout; it is a GitHub icon (a globe for GitLab and Bitbucket) and the "Issues" label shows on hover. It
+  appears only while the open session's folder is a git clone with an `origin` remote. A folder
   that is not a git repository (e.g. a copy synced by Syncthing or Dropbox, which leaves `.git` behind) gets no button.
 - **No model turn, no server tools, no API token** — the remote is read with a plain `git remote get-url origin` in the app's main process and cached per directory. Choosing **Open issue tracker** re-reads the remote, so a freshly added remote works immediately.
 - **`/issues` and the palette entry are always there.** With no session open, or in a folder with no `origin` remote,
