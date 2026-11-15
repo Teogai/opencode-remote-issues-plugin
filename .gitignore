@@ -2,6 +2,7 @@ node_modules/
 package-lock.json
 *.log
 
-# dist/gui-experimental.cjs is intentionally committed: OpenCode Desktop
-# loads ./gui-experimental as one prebuilt CommonJS bundle and cannot build
-# it on the installing machine.
+# gui-experimental.cjs at the repo root is intentionally committed: OpenCode Desktop
+# loads ./gui-experimental as one prebuilt CommonJS bundle, and the installing
+# machine cannot build it (git installs with devDependencies fail on OpenCode
+# 2.3.0 standalone builds). Rebuild with `npx vite build` and commit.
