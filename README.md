@@ -20,35 +20,30 @@ Any host that isn't `github.com` or `bitbucket.org` is treated as GitLab, so **s
 
 ## Install
 
-> ⚠️ **Known OpenCode bug (verified on 2.3.0, macOS/Windows/Linux):** installing *any* plugin from git fails with
-> `NpmInstallFailedError: … git dep preparation failed — Unrecognized flag: --force in command opencode`. OpenCode's
-> standalone build re-executes itself as its embedded npm CLI when preparing git dependencies, and its own argument
-> parser rejects npm's flags. It affects `opencode plugin add github:…` and background installs of `github:…` config
-> entries alike — not this plugin. Use the local-clone install below until it is fixed upstream; the `github:` entry
-> works on npm-installed OpenCode builds.
-
-Clone the repo anywhere (no `npm install` needed — the plugin is one prebuilt bundle committed in `dist/`) and add the
-path to your global `~/.config/opencode/opencode.json(c)` — the desktop app only reads plugins from the global config:
-
 ```sh
-git clone https://github.com/Teogai/opencode-remote-issues-plugin ~/plugins/opencode-remote-issues-plugin
+opencode plugin add github:Teogai/opencode-remote-issues-plugin
 ```
+
+or add it to your global `~/.config/opencode/opencode.json(c)` — the desktop app only reads plugins from the global
+config:
 
 ```jsonc
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugins": ["/absolute/path/to/opencode-remote-issues-plugin"],
+  "plugins": ["github:Teogai/opencode-remote-issues-plugin"],
 }
 ```
 
-Restart the desktop app, or flip the plugin under **Settings → Extensions → Plugins** (it has a Reload button). Once
-the OpenCode bug is fixed, the same slot accepts the git form — `opencode plugin update` then keeps it fresh:
+Restart the desktop app, or flip the plugin under **Settings → Extensions → Plugins** (it has a Reload button).
+Updates: `opencode plugin update`.
 
-```jsonc
-{ "plugins": ["github:Teogai/opencode-remote-issues-plugin"] }
-```
-
-To update a clone: `git pull`.
+> **Why this repo declares zero dependencies:** OpenCode 2.3.0's standalone builds prepare git plugins by re-executing
+> themselves as their embedded npm CLI, and the opencode argument parser rejects npm's flags — so installing *any* git
+> plugin whose `package.json` has dependencies fails with
+> `NpmInstallFailedError: … git dep preparation failed — Unrecognized flag: --force in command opencode`. A plugin with
+> no dependencies skips that prepare step and installs cleanly, which is why the runtime artifact is the committed
+> prebuilt `gui-experimental.cjs` at the repo root and nothing else. Don't add dependencies or a lockfile here, or the
+> install breaks again.
 
 ## What you get
 
@@ -65,16 +60,21 @@ To update a clone: `git pull`.
 
 ## Development
 
+`package.json` intentionally declares no dependencies (see the note under Install), so install the build toolchain
+explicitly — versions matching the OpenCode release you target:
+
 ```sh
-npm install
-npm test          # remote-url mapping tests
-npm run typecheck
-npm run build     # emits dist/gui-experimental.cjs
+npm i -D @opencode/plugin@2.3.0 effect@4.1.0 solid-js vite vite-plugin-solid typescript @types/node
+npx vite build                              # writes gui-experimental.cjs at the repo root
+node test/remote-url.test.mjs               # remote-url mapping tests
+npx tsc --noEmit
 ```
 
-`dist/gui-experimental.cjs` is **committed on purpose**: the desktop app loads `./gui-experimental` as one prebuilt CommonJS file. Rebuild and commit it whenever `src/` changes.
+`gui-experimental.cjs` is **committed on purpose**: the desktop app loads `./gui-experimental` as one prebuilt CommonJS
+file and the installing machine cannot build it. Rebuild and commit it whenever `src/` changes, and never commit
+`node_modules` or `package-lock.json`.
 
-Because the install above is a plain clone, you can iterate live: with the plugin configured as a path, every rebuild
+To iterate live, point the config entry at the checkout (a local path works like any plugin); every rebuild then
 reloads it in all open app windows:
 
 ```sh
