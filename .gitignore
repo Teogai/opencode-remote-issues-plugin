@@ -1,0 +1,6 @@
+node_modules/
+*.log
+
+# dist/gui-experimental.cjs is intentionally committed: OpenCode Desktop
+# loads ./gui-experimental as one prebuilt CommonJS bundle and cannot build
+# it on the installing machine.
