@@ -20,20 +20,35 @@ Any host that isn't `github.com` or `bitbucket.org` is treated as GitLab, so **s
 
 ## Install
 
-```sh
-opencode plugin add github:Teogai/opencode-remote-issues-plugin
-```
+> ⚠️ **Known OpenCode bug (verified on 2.3.0, macOS/Windows/Linux):** installing *any* plugin from git fails with
+> `NpmInstallFailedError: … git dep preparation failed — Unrecognized flag: --force in command opencode`. OpenCode's
+> standalone build re-executes itself as its embedded npm CLI when preparing git dependencies, and its own argument
+> parser rejects npm's flags. It affects `opencode plugin add github:…` and background installs of `github:…` config
+> entries alike — not this plugin. Use the local-clone install below until it is fixed upstream; the `github:` entry
+> works on npm-installed OpenCode builds.
 
-or add it to your global `~/.config/opencode/opencode.json(c)` — the desktop app only reads plugins from the global config:
+Clone the repo anywhere (no `npm install` needed — the plugin is one prebuilt bundle committed in `dist/`) and add the
+path to your global `~/.config/opencode/opencode.json(c)` — the desktop app only reads plugins from the global config:
+
+```sh
+git clone https://github.com/Teogai/opencode-remote-issues-plugin ~/plugins/opencode-remote-issues-plugin
+```
 
 ```jsonc
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugins": ["github:Teogai/opencode-remote-issues-plugin"],
+  "plugins": ["/absolute/path/to/opencode-remote-issues-plugin"],
 }
 ```
 
-Updates: `opencode plugin update`. The plugin shows up under **Settings → Extensions → Plugins**, where you can switch its UI off.
+Restart the desktop app, or flip the plugin under **Settings → Extensions → Plugins** (it has a Reload button). Once
+the OpenCode bug is fixed, the same slot accepts the git form — `opencode plugin update` then keeps it fresh:
+
+```jsonc
+{ "plugins": ["github:Teogai/opencode-remote-issues-plugin"] }
+```
+
+To update a clone: `git pull`.
 
 ## What you get
 
@@ -59,11 +74,8 @@ npm run build     # emits dist/gui-experimental.cjs
 
 `dist/gui-experimental.cjs` is **committed on purpose**: the desktop app loads `./gui-experimental` as one prebuilt CommonJS file. Rebuild and commit it whenever `src/` changes.
 
-To iterate against a running desktop app, point your global config at the checkout instead — it live-reloads on every `vite build`:
-
-```jsonc
-{ "plugins": ["/path/to/opencode-remote-issues-plugin"] }
-```
+Because the install above is a plain clone, you can iterate live: with the plugin configured as a path, every rebuild
+reloads it in all open app windows:
 
 ```sh
 npx vite build --watch
