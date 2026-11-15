@@ -18,7 +18,9 @@ export default Plugin.define({
       "command.open": "Open issue tracker",
       "command.open.description": "Opens the project's GitHub or GitLab issues in the browser",
       "missing.title": "No issue tracker found",
-      "missing.description": "This session has no git origin remote to build an issues URL from.",
+      "missing.description":
+        "{{directory}} has no git origin remote to build an issues URL from. Open a session in a git clone of the project.",
+      "nosession.description": "Open a session first: the issue tracker comes from its folder's git origin remote.",
     },
   },
   setup(ctx) {
@@ -45,8 +47,17 @@ export default Plugin.define({
     })
 
     const open = async (input?: string) => {
+      const explicit = input?.trim()
+      if (explicit && /^https?:\/\//i.test(explicit)) {
+        await ctx.system.openExternal(explicit)
+        return
+      }
+
       const session = ctx.sessions.current()
-      if (!session) return
+      if (!session) {
+        await ctx.dialogs.alert({ title: ctx.t("missing.title"), description: ctx.t("nosession.description") })
+        return
+      }
 
       let project = resolved()?.project
       try {
@@ -58,7 +69,10 @@ export default Plugin.define({
       }
 
       if (!project) {
-        await ctx.dialogs.alert({ title: ctx.t("missing.title"), description: ctx.t("missing.description") })
+        await ctx.dialogs.alert({
+          title: ctx.t("missing.title"),
+          description: ctx.t("missing.description", { directory: session.directory }),
+        })
         return
       }
       await ctx.system.openExternal(issueUrlFor(project, input))
@@ -88,7 +102,8 @@ export default Plugin.define({
         keywords: "issues github gitlab bitbucket tracker ticket",
         group: ctx.t("command.group"),
         slash: { name: "issues", arguments: true },
-        enabled: resolved()?.project !== undefined,
+        // No `enabled`: a disabled command leaves the palette and the slash list, so a folder without an
+        // origin remote would hide /issues silently instead of reaching the "no tracker" alert in open().
         run: (input) => void open(input),
       }
     })

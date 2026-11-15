@@ -47,9 +47,11 @@ Updates: `opencode plugin update`.
 
 ## What you get
 
-- **Titlebar button** — appears whenever the current session's project has a resolvable `origin` remote; hidden otherwise (plain `/issues` is still there).
+- **Titlebar button** — appears only while the open session's folder is a git clone with an `origin` remote. A folder
+  that is not a git repository (e.g. a copy synced by Syncthing or Dropbox, which leaves `.git` behind) gets no button.
 - **No model turn, no server tools, no API token** — the remote is read with a plain `git remote get-url origin` in the app's main process and cached per directory. Choosing **Open issue tracker** re-reads the remote, so a freshly added remote works immediately.
-- If there is no `origin` remote, the command says so instead of silently doing nothing.
+- **`/issues` and the palette entry are always there.** With no session open, or in a folder with no `origin` remote,
+  they show a dialog saying why instead of disappearing. `/issues <url>` opens the URL in any folder.
 
 ## Limitations
 
@@ -66,7 +68,7 @@ explicitly — versions matching the OpenCode release you target:
 ```sh
 npm i -D @opencode/plugin@2.3.0 effect@4.1.0 solid-js vite vite-plugin-solid typescript @types/node
 npx vite build                              # writes gui-experimental.cjs at the repo root
-node test/remote-url.test.mjs               # remote-url mapping tests
+npm test                                    # remote-url mapping + the built bundle against a fake host
 npx tsc --noEmit
 ```
 

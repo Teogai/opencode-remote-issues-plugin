@@ -26,6 +26,6 @@
     "src"
   ],
   "scripts": {
-    "test": "node test/remote-url.test.mjs"
+    "test": "node --test test/*.test.mjs"
   }
 }
